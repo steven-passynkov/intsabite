@@ -7,6 +7,11 @@ import {
   Box,
   CardMedia,
   Modal,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import { supabase } from "../utils/supabase";
 
@@ -14,6 +19,8 @@ const ViewOrders = () => {
   const [orders, setOrders] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -43,20 +50,27 @@ const ViewOrders = () => {
     fetchOrders();
   }, []);
 
-  const cancelOrder = async (orderId) => {
-    const { error } = await supabase
+  const confirmCancelOrder = async () => {
+    console.log("Cancelling order with ID:", orderToCancel);
+
+    const { data, error } = await supabase
       .from("orders")
       .update({ status: "CANCELLED" })
-      .eq("id", orderId);
+      .eq("id", orderToCancel)
+      .select();
+
+    console.log("Update result:", data, error);
+
     if (error) {
       console.error("Error cancelling order:", error);
     } else {
       setOrders(
         orders.map((order) =>
-          order.id === orderId ? { ...order, status: "CANCELLED" } : order
+          order.id === orderToCancel ? { ...order, status: "CANCELLED" } : order
         )
       );
     }
+    setOpenDialog(false);
   };
 
   return (
@@ -99,7 +113,12 @@ const ViewOrders = () => {
                 Status: {order.status}
               </Typography>
               {order.status === "ORDERED" && (
-                <Button onClick={() => cancelOrder(order.id)}>
+                <Button
+                  onClick={() => {
+                    setOrderToCancel(order.id);
+                    setOpenDialog(true);
+                  }}
+                >
                   Cancel Order
                 </Button>
               )}
@@ -143,6 +162,30 @@ const ViewOrders = () => {
           <p>{selectedMeal?.description}</p>
         </Box>
       </Modal>
+
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Confirm Cancel Order"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to cancel this order?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            No
+          </Button>
+          <Button onClick={confirmCancelOrder} color="primary" autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
