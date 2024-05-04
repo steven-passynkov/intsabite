@@ -73,6 +73,22 @@ const Order = () => {
     }
   };
 
+  const isAfterMealTime = (mealType) => {
+    const currentHour = new Date().getHours();
+    switch (mealType) {
+      case "Breakfast":
+        return currentHour >= 10;
+      case "Lunch":
+        return currentHour >= 14;
+      case "Snack":
+        return currentHour >= 16;
+      case "Dinner":
+        return currentHour >= 21;
+      default:
+        return false;
+    }
+  };
+
   const mealsTypes = ["Breakfast", "Lunch", "Snack", "Dinner"];
 
   return (
@@ -125,6 +141,8 @@ const Order = () => {
                 new Date(order.created_at) >= today
             );
 
+            const isDisabled = isMealOrderedToday || isAfterMealTime(meal);
+
             return (
               <Grid item key={index}>
                 <Box m={2}>
@@ -132,12 +150,12 @@ const Order = () => {
                     elevation={mealType === meal ? 3 : 1}
                     sx={{
                       borderRadius: 2,
-                      opacity: isMealOrderedToday ? 0.5 : 1,
+                      opacity: isDisabled ? 0.5 : 1,
                     }}
                   >
                     <CardActionArea
                       onClick={() => setMealType(meal)}
-                      disabled={isMealOrderedToday}
+                      disabled={isDisabled}
                     >
                       <CardContent>
                         <FormControlLabel
@@ -162,7 +180,10 @@ const Order = () => {
               <Box m={2}>
                 <Card
                   elevation={meal === mealItem.name ? 3 : 1}
-                  sx={{ borderRadius: 2 }}
+                  sx={{
+                    borderRadius: 2,
+                    opacity: mealItem.is_available ? 1 : 0.5,
+                  }}
                 >
                   <CardMedia
                     component="img"
@@ -175,12 +196,15 @@ const Order = () => {
                       setMeal(mealItem.name);
                       setSelectedMealData(mealItem);
                     }}
+                    disabled={!mealItem.is_available}
                   >
                     <CardContent>
                       <FormControlLabel
                         control={
                           <Checkbox
-                            checked={meal === mealItem.name}
+                            checked={
+                              meal === mealItem.name && mealItem.is_available
+                            }
                             name={mealItem.name}
                           />
                         }
@@ -198,6 +222,7 @@ const Order = () => {
                         setOpen(true);
                         setSelectedMealData(mealItem);
                       }}
+                      disabled={!mealItem.is_available}
                     >
                       Learn More
                     </Button>
