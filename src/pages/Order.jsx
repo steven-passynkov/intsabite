@@ -16,6 +16,7 @@ import {
   CardMedia,
   CardActions,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabase";
 
 const Order = () => {
@@ -23,11 +24,15 @@ const Order = () => {
   const [mealType, setMealType] = useState("");
   const [meal, setMeal] = useState("");
   const [selectedMealData, setSelectedMealData] = useState(null);
+  const [drink, setDrink] = useState("");
+  const [selectedDrinkData, setSelectedDrinkData] = useState(null);
   const [meals, setMeals] = useState([]);
+  const [drinks, setDrinks] = useState([]);
   const [open, setOpen] = useState(false);
   const [userOrders, setUserOrders] = useState([]);
-
   const [orderSuccess, setOrderSuccess] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMeals = async () => {
@@ -36,6 +41,15 @@ const Order = () => {
         console.error("Error fetching meals:", error);
       } else {
         setMeals(data);
+      }
+    };
+
+    const fetchDrinks = async () => {
+      const { data, error } = await supabase.from("drinks").select();
+      if (error) {
+        console.error("Error fetching drinks:", error);
+      } else {
+        setDrinks(data);
       }
     };
 
@@ -56,7 +70,7 @@ const Order = () => {
 
     fetchMeals();
     fetchUserOrders();
-  }, []);
+  }, [orderSuccess]);
 
   const confirmOrder = async () => {
     const user = await supabase.auth.getUser();
@@ -64,6 +78,7 @@ const Order = () => {
     if (user) {
       const { error } = await supabase.from("orders").insert({
         meal: selectedMealData.id,
+        drink: selectedDrinkData.id,
         type: mealType,
         user: user.data.user.id,
         status: "ORDERED",
@@ -127,6 +142,17 @@ const Order = () => {
                   sx={{ maxWidth: "300px", wordWrap: "break-word" }}
                 >
                   Choose the food you’d like.
+                </Typography>
+              </StepLabel>
+            </Step>
+            <Step>
+              <StepLabel>
+                <Typography variant="h5">Drink?</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ maxWidth: "300px", wordWrap: "break-word" }}
+                >
+                  Choose the drink you’d like.
                 </Typography>
               </StepLabel>
             </Step>
@@ -234,6 +260,9 @@ const Order = () => {
                               </Typography>
                             }
                           />
+                          <Typography variant="body1">
+                            Calories: {mealItem.calories}
+                          </Typography>
                         </CardContent>
                       </CardActionArea>
                       <CardActions>
@@ -255,7 +284,74 @@ const Order = () => {
               ))}
             </Grid>
           )}
+
           {activeStep === 2 && (
+            <Grid container spacing={2}>
+              {drinks.map((drinkItem, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Box m={2}>
+                    <Card
+                      elevation={drink === drinkItem.name ? 3 : 1}
+                      sx={{
+                        borderRadius: 2,
+                        opacity: drinkItem.is_available ? 1 : 0.5,
+                      }}
+                    >
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image="/path/to/image.jpg"
+                        alt={drinkItem.name}
+                      />
+                      <CardActionArea
+                        onClick={() => {
+                          setDrink(drinkItem.name);
+                          setSelectedDrinkData(drinkItem);
+                        }}
+                        disabled={!drinkItem.is_available}
+                      >
+                        <CardContent>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  drink === drinkItem.name &&
+                                  drinkItem.is_available
+                                }
+                                name={drinkItem.name}
+                              />
+                            }
+                            label={
+                              <Typography variant="h5">
+                                {drinkItem.name}
+                              </Typography>
+                            }
+                          />
+                          <Typography variant="body1">
+                            Calories: {drinkItem.calories}
+                          </Typography>
+                        </CardContent>
+                      </CardActionArea>
+                      <CardActions>
+                        <Button
+                          size="small"
+                          color="primary"
+                          onClick={() => {
+                            setOpen(true);
+                            setSelectedDrinkData(drinkItem);
+                          }}
+                          disabled={!drinkItem.is_available}
+                        >
+                          Learn More
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+          {activeStep === 3 && (
             <Box>
               <Box sx={{ m: "2em" }}>
                 <Typography variant="h5">You have selected:</Typography>
@@ -311,26 +407,39 @@ const Order = () => {
             <Button
               variant="contained"
               disabled={
-                activeStep === 0 ? !mealType : activeStep === 1 ? !meal : false
+                activeStep === 0
+                  ? !mealType
+                  : activeStep === 1
+                  ? !meal
+                  : activeStep === 2
+                  ? !drink
+                  : false
               }
               onClick={() => {
-                if (activeStep < 2) {
+                if (activeStep < 3) {
                   setActiveStep((prevActiveStep) => prevActiveStep + 1);
                 } else {
                   confirmOrder();
                 }
               }}
             >
-              {activeStep === 2 ? "Confirm" : "Next"}
+              {activeStep === 3 ? "Confirm" : "Next"}
             </Button>
           </Box>
         </>
       ) : (
-        <div>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+          flexDirection="column"
+        >
           <h1>Order Successful!</h1>
           <p>Your order has been placed successfully.</p>
           <Button onClick={resetOrder}>Place Another Order</Button>
-        </div>
+          <Button onClick={() => navigate("/view-orders")}>View Orders</Button>
+        </Box>
       )}
 
       <Modal
@@ -357,7 +466,7 @@ const Order = () => {
           }}
         >
           <h2>{selectedMealData?.name}</h2>
-          <p>More information about the meal...</p>
+          <p>{selectedMealData?.description}</p>
         </Box>
       </Modal>
     </>

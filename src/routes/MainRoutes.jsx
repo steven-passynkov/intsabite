@@ -6,6 +6,7 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Logout from "../pages/Logout";
 import Order from "../pages/Order";
+import ViewOrders from "../pages/ViewOrders";
 
 // TODO rederect
 
@@ -34,6 +35,14 @@ export const MainAppRoutes = () => {
         element={
           <ProtectedRoute>
             <Order />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/view-orders"
+        element={
+          <ProtectedRoute>
+            <ViewOrders />
           </ProtectedRoute>
         }
       />
