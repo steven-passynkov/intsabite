@@ -7,6 +7,7 @@ import Login from "../pages/Login";
 import Logout from "../pages/Logout";
 import Order from "../pages/Order";
 import ViewOrders from "../pages/ViewOrders";
+import Orders from "../pages/Orders";
 
 // TODO rederect
 
@@ -43,6 +44,14 @@ export const MainAppRoutes = () => {
         element={
           <ProtectedRoute>
             <ViewOrders />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <Orders />
           </ProtectedRoute>
         }
       />

@@ -51,15 +51,11 @@ const ViewOrders = () => {
   }, []);
 
   const confirmCancelOrder = async () => {
-    console.log("Cancelling order with ID:", orderToCancel);
-
     const { data, error } = await supabase
       .from("orders")
       .update({ status: "CANCELLED" })
       .eq("id", orderToCancel)
       .select();
-
-    console.log("Update result:", data, error);
 
     if (error) {
       console.error("Error cancelling order:", error);
