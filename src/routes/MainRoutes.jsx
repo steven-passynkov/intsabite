@@ -9,19 +9,10 @@ import Order from "../pages/Order";
 import ViewOrders from "../pages/ViewOrders";
 import Orders from "../pages/Orders";
 
-// TODO rederect
-
 export const MainAppRoutes = () => {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/" element={<Home />} />
       <Route
         path="/login"
         element={
@@ -30,11 +21,18 @@ export const MainAppRoutes = () => {
           </PublicRoute>
         }
       />
-      <Route path="/logout" element={<Logout />} />
+      <Route
+        path="/logout"
+        element={
+          <ProtectedRoute redirectPath="/">
+            <Logout />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/order"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute redirectPath="/login">
             <Order />
           </ProtectedRoute>
         }
@@ -42,7 +40,7 @@ export const MainAppRoutes = () => {
       <Route
         path="/view-orders"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute redirectPath="/login">
             <ViewOrders />
           </ProtectedRoute>
         }
@@ -50,7 +48,7 @@ export const MainAppRoutes = () => {
       <Route
         path="/orders"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute redirectPath="/login">
             <Orders />
           </ProtectedRoute>
         }

@@ -1,12 +1,16 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { MainAppRoutes } from "./routes/MainRoutes";
+import Navbar from "./components/Navbar";
 
 const AppRouter = () => {
   return (
-    <Routes>
-      <Route path="*" element={<MainAppRoutes />} />
-    </Routes>
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="*" element={<MainAppRoutes />} />
+      </Routes>
+    </>
   );
 };
 

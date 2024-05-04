@@ -80,55 +80,63 @@ const ViewOrders = () => {
         mt={2}
         mb={2}
       >
-        {orders.map((order, index) => (
-          <Card
-            key={index}
-            sx={{ minWidth: 275, marginBottom: 2, width: "80%" }}
-          >
-            <CardMedia
-              component="img"
-              height="140"
-              image={order.mealData.image}
-              alt={order.mealData.name}
-              onClick={() => {
-                setSelectedMeal(order.mealData);
-                setOpen(true);
-              }}
-            />
-            <CardContent>
-              <Typography variant="h5" component="div">
-                {order.mealData.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Meal Type: {order.type}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Calories: {order.mealData.calories}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Status: {order.status}
-              </Typography>
-              {order.status === "ORDERED" && (
-                <Button
-                  onClick={() => {
-                    setOrderToCancel(order.id);
-                    setOpenDialog(true);
-                  }}
-                >
-                  Cancel Order
-                </Button>
-              )}
-              <Button
-                onClick={() => {
-                  setSelectedMeal(order.mealData);
-                  setOpen(true);
-                }}
+        {orders.length > 0 ? (
+          <>
+            {orders.map((order, index) => (
+              <Card
+                key={index}
+                sx={{ minWidth: 275, marginBottom: 2, width: "80%" }}
               >
-                View Details
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={order.mealData.image}
+                  alt={order.mealData.name}
+                  onClick={() => {
+                    setSelectedMeal(order.mealData);
+                    setOpen(true);
+                  }}
+                />
+                <CardContent>
+                  <Typography variant="h5" component="div">
+                    {order.mealData.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Meal Type: {order.type}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Calories: {order.mealData.calories}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Status: {order.status}
+                  </Typography>
+                  {order.status === "ORDERED" && (
+                    <Button
+                      onClick={() => {
+                        setOrderToCancel(order.id);
+                        setOpenDialog(true);
+                      }}
+                    >
+                      Cancel Order
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => {
+                      setSelectedMeal(order.mealData);
+                      setOpen(true);
+                    }}
+                  >
+                    View Details
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        ) : (
+          <Typography variant="h6" component="div">
+            No orders to display.
+          </Typography>
+        )}
       </Box>
 
       <Modal

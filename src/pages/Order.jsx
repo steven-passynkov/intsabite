@@ -69,6 +69,7 @@ const Order = () => {
     };
 
     fetchMeals();
+    fetchDrinks();
     fetchUserOrders();
   }, [orderSuccess]);
 

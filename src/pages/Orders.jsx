@@ -18,6 +18,7 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Typography,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { supabase } from "../utils/supabase";
@@ -31,7 +32,7 @@ const OrdersPage = () => {
   const [anchorElCol, setAnchorElCol] = useState(null);
   const [anchorElRow, setAnchorElRow] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [orderToCancel, setOrderToCancel] = useState(null);
+  const [opendOrder, setOpendOrder] = useState(null);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -95,26 +96,39 @@ const OrdersPage = () => {
   }, [fetchOrders]);
 
   const confirmCancelOrder = async () => {
-    console.log("Cancelling order with ID:", orderToCancel);
-
     const { data, error } = await supabase
       .from("orders")
       .update({ status: "CANCELLED" })
-      .eq("id", orderToCancel)
+      .eq("id", opendOrder)
       .select();
-
-    console.log("Update result:", data, error);
 
     if (error) {
       console.error("Error cancelling order:", error);
     } else {
       setOrders(
         orders.map((order) =>
-          order.id === orderToCancel ? { ...order, status: "CANCELLED" } : order
+          order.id === opendOrder ? { ...order, status: "CANCELLED" } : order
         )
       );
     }
     setOpenDialog(false);
+  };
+
+  const updateOrderStatus = async (orderId, newStatus) => {
+    const { data, error } = await supabase
+      .from("orders")
+      .update({ status: newStatus })
+      .eq("id", orderId);
+
+    if (error) {
+      console.error("Error updating order:", error);
+    } else {
+      setOrders(
+        orders.map((order) =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+    }
   };
 
   const filteredOrders = orders.filter((order) =>
@@ -148,47 +162,63 @@ const OrdersPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredOrders.map((order) => {
-                const user = users.find((user) => user.id === order.user);
-                const meal = meals.find((meal) => meal.id === order.meal);
-                const drink = order.drink
-                  ? drinks.find((drink) => drink.id === order.drink)
-                  : null;
+              {filteredOrders.length > 0 ? (
+                <>
+                  {filteredOrders.map((order) => {
+                    const user = users.find((user) => user.id === order.user);
+                    const meal = meals.find((meal) => meal.id === order.meal);
+                    const drink = order.drink
+                      ? drinks.find((drink) => drink.id === order.drink)
+                      : null;
 
-                return (
-                  <TableRow key={order.id}>
-                    <TableCell>{order.id}</TableCell>
-                    <TableCell>{user ? user.name : "Unknown User"}</TableCell>
-                    <TableCell>
-                      {user ? user.room_number : "Unknown Room Number"}
-                    </TableCell>
-                    <TableCell>
-                      {user.allergens ? user.allergens : "No allergens listed"}
-                    </TableCell>
-                    <TableCell>{meal.name}</TableCell>
-                    <TableCell>
-                      {drink
-                        ? `${drink.name} (${drink.description})`
-                        : "No drink ordered"}
-                    </TableCell>
-                    <TableCell>{order.status}</TableCell>
+                    return (
+                      <TableRow key={order.id}>
+                        <TableCell>{order.id}</TableCell>
+                        <TableCell>
+                          {user ? user.name : "Unknown User"}
+                        </TableCell>
+                        <TableCell>
+                          {user ? user.room_number : "Unknown Room Number"}
+                        </TableCell>
+                        <TableCell>
+                          {user.allergens
+                            ? user.allergens
+                            : "No allergens listed"}
+                        </TableCell>
+                        <TableCell>{meal.name}</TableCell>
+                        <TableCell>
+                          {drink
+                            ? `${drink.name} (${drink.description})`
+                            : "No drink ordered"}
+                        </TableCell>
+                        <TableCell>{order.status}</TableCell>
 
-                    <TableCell>
-                      <IconButton
-                        aria-label="more"
-                        aria-controls="long-menu"
-                        aria-haspopup="true"
-                        onClick={(event) => {
-                          setAnchorElRow(event.currentTarget);
-                          setOrderToCancel(order.id);
-                        }}
-                      >
-                        <MoreVertIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                        <TableCell>
+                          <IconButton
+                            aria-label="more"
+                            aria-controls="long-menu"
+                            aria-haspopup="true"
+                            onClick={(event) => {
+                              setAnchorElRow(event.currentTarget);
+                              setOpendOrder(order.id);
+                            }}
+                          >
+                            <MoreVertIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </>
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8}>
+                    <Typography variant="h6" component="div" textAlign="center">
+                      No orders to display.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>
@@ -232,6 +262,62 @@ const OrdersPage = () => {
           },
         }}
       >
+        <MenuItem
+          disabled={opendOrder && opendOrder.status === "ORDERED"}
+          onClick={() => {
+            updateOrderStatus(opendOrder.id, "ORDERED");
+            setAnchorElRow(null);
+          }}
+          style={
+            opendOrder && opendOrder.status === "ORDERED"
+              ? { color: "gray" }
+              : {}
+          }
+        >
+          Update to Ordered
+        </MenuItem>
+        <MenuItem
+          disabled={opendOrder && opendOrder.status === "IN_PROGRESS"}
+          onClick={() => {
+            updateOrderStatus(opendOrder.id, "IN_PROGRESS");
+            setAnchorElRow(null);
+          }}
+          style={
+            opendOrder && opendOrder.status === "IN_PROGRESS"
+              ? { color: "gray" }
+              : {}
+          }
+        >
+          Update to In Progress
+        </MenuItem>
+        <MenuItem
+          disabled={opendOrder && opendOrder.status === "DELIVERED"}
+          onClick={() => {
+            updateOrderStatus(opendOrder.id, "DELIVERED");
+            setAnchorElRow(null);
+          }}
+          style={
+            opendOrder && opendOrder.status === "DELIVERED"
+              ? { color: "gray" }
+              : {}
+          }
+        >
+          Update to Delivered
+        </MenuItem>
+        <MenuItem
+          disabled={opendOrder && opendOrder.status === "CANCELLED"}
+          onClick={() => {
+            updateOrderStatus(opendOrder.id, "CANCELLED");
+            setAnchorElRow(null);
+          }}
+          style={
+            opendOrder && opendOrder.status === "CANCELLED"
+              ? { color: "gray" }
+              : {}
+          }
+        >
+          Update to Cancelled
+        </MenuItem>
         <MenuItem
           onClick={() => {
             setOpenDialog(true);

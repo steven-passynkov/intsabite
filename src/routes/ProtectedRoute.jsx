@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { CircularProgress, Box } from "@mui/material";
 import { Navigate, Outlet } from "react-router-dom";
 import { supabase } from "../utils/supabase";
 
@@ -21,6 +22,19 @@ const ProtectedRoute = ({ allowedRoles, redirectPath, children }) => {
 
     fetchUserRole();
   }, []);
+
+  if (isLoading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   if (!authenticated) {
     return <Navigate to={redirectPath} replace />;

@@ -1,10 +1,20 @@
-import React from 'react';
+import React from "react";
+import AppRouter from "./AppRouter";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-import AppRouter from './AppRouter';
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#B236FF",
+    },
+  },
+});
 
 function App() {
   return (
-    <AppRouter />
+    <ThemeProvider theme={theme}>
+      <AppRouter />
+    </ThemeProvider>
   );
 }
 
