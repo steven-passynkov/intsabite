@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Button, TextField, Grid, Typography } from "@mui/material";
 import { supabase } from "../utils/supabase";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [session, setSession] = useState(null);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -13,9 +16,17 @@ const Login = () => {
       password: password,
     });
 
-    console.log(data);
-    if (error) console.error("Error logging in:", error.message);
+    if (data) {
+      const session = data;
+      setSession(session);
+    } else if (error) {
+      console.error("Error logging in:", error.message);
+    }
   };
+
+  if (session) {
+    return navigate("/");
+  }
 
   return (
     <Grid
