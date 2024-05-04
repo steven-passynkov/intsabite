@@ -284,7 +284,6 @@ const Order = () => {
               ))}
             </Grid>
           )}
-
           {activeStep === 2 && (
             <Grid container spacing={2}>
               {drinks.map((drinkItem, index) => (

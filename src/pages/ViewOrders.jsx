@@ -93,6 +93,9 @@ const ViewOrders = () => {
                 Meal Type: {order.type}
               </Typography>
               <Typography variant="body2" color="text.secondary">
+                Calories: {order.mealData.calories}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
                 Status: {order.status}
               </Typography>
               {order.status === "ORDERED" && (
