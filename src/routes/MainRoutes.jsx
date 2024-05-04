@@ -7,13 +7,15 @@ import Login from "../pages/Login";
 import Logout from "../pages/Logout";
 import Order from "../pages/Order";
 
+// TODO rederect
+
 export const MainAppRoutes = () => {
   return (
     <Routes>
       <Route
         path="/"
         element={
-          <ProtectedRoute allowedRoles={["client"]} >
+          <ProtectedRoute>
             <Home />
           </ProtectedRoute>
         }
@@ -30,7 +32,7 @@ export const MainAppRoutes = () => {
       <Route
         path="/order"
         element={
-          <ProtectedRoute allowedRoles={["client"]}>
+          <ProtectedRoute>
             <Order />
           </ProtectedRoute>
         }
