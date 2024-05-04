@@ -126,7 +126,7 @@ const Order = () => {
           <Stepper activeStep={activeStep} sx={{ m: "2em" }}>
             <Step>
               <StepLabel>
-                <Typography variant="h5">When?</Typography>
+                <Typography variant="h5">When</Typography>
                 <Typography
                   variant="body2"
                   sx={{ maxWidth: "300px", wordWrap: "break-word" }}
@@ -137,7 +137,7 @@ const Order = () => {
             </Step>
             <Step>
               <StepLabel>
-                <Typography variant="h5">What?</Typography>
+                <Typography variant="h5">Meal</Typography>
                 <Typography
                   variant="body2"
                   sx={{ maxWidth: "300px", wordWrap: "break-word" }}
@@ -148,7 +148,7 @@ const Order = () => {
             </Step>
             <Step>
               <StepLabel>
-                <Typography variant="h5">Drink?</Typography>
+                <Typography variant="h5">Drink</Typography>
                 <Typography
                   variant="body2"
                   sx={{ maxWidth: "300px", wordWrap: "break-word" }}
@@ -234,7 +234,7 @@ const Order = () => {
                       <CardMedia
                         component="img"
                         height="140"
-                        image="/path/to/image.jpg"
+                        image={mealItem.image_url}
                         alt={mealItem.name}
                       />
                       <CardActionArea
@@ -300,7 +300,7 @@ const Order = () => {
                       <CardMedia
                         component="img"
                         height="140"
-                        image="/path/to/image.jpg"
+                        image={drinkItem.image_url}
                         alt={drinkItem.name}
                       />
                       <CardActionArea
@@ -363,7 +363,7 @@ const Order = () => {
                         <CardMedia
                           component="img"
                           height="140"
-                          image={selectedMeal.image}
+                          image={selectedMeal.image_url}
                           alt={selectedMeal.name}
                         />
                         <CardContent>

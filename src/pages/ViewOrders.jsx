@@ -90,7 +90,7 @@ const ViewOrders = () => {
                 <CardMedia
                   component="img"
                   height="140"
-                  image={order.mealData.image}
+                  image={order.mealData.image_url}
                   alt={order.mealData.name}
                   onClick={() => {
                     setSelectedMeal(order.mealData);
