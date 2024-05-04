@@ -27,6 +27,8 @@ const Order = () => {
   const [open, setOpen] = useState(false);
   const [userOrders, setUserOrders] = useState([]);
 
+  const [orderSuccess, setOrderSuccess] = useState(false);
+
   useEffect(() => {
     const fetchMeals = async () => {
       const { data, error } = await supabase.from("meals").select();
@@ -69,6 +71,8 @@ const Order = () => {
 
       if (error) {
         console.error("Error inserting order:", error);
+      } else {
+        setOrderSuccess(true);
       }
     }
   };
@@ -89,215 +93,245 @@ const Order = () => {
     }
   };
 
+  const resetOrder = () => {
+    setActiveStep(0);
+    setMealType("");
+    setMeal("");
+    setSelectedMealData(null);
+    setOrderSuccess(false);
+  };
+
   const mealsTypes = ["Breakfast", "Lunch", "Snack", "Dinner"];
 
   return (
     <>
-      <Stepper activeStep={activeStep} sx={{ m: "2em" }}>
-        <Step>
-          <StepLabel>
-            <Typography variant="h5">When?</Typography>
-            <Typography
-              variant="body2"
-              sx={{ maxWidth: "300px", wordWrap: "break-word" }}
-            >
-              What meal are you having? (breakfast, lunch, dinner)
-            </Typography>
-          </StepLabel>
-        </Step>
-        <Step>
-          <StepLabel>
-            <Typography variant="h5">What?</Typography>
-            <Typography
-              variant="body2"
-              sx={{ maxWidth: "300px", wordWrap: "break-word" }}
-            >
-              Choose the food you’d like.
-            </Typography>
-          </StepLabel>
-        </Step>
-        <Step>
-          <StepLabel>
-            <Typography variant="h5">Confirm</Typography>
-            <Typography
-              variant="body2"
-              sx={{ maxWidth: "300px", wordWrap: "break-word" }}
-            >
-              See the progress of your order.
-            </Typography>
-          </StepLabel>
-        </Step>
-      </Stepper>
-      {activeStep === 0 && (
-        <Grid container direction="column" spacing={2}>
-          {mealsTypes.map((meal, index) => {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const isMealOrderedToday = userOrders.some(
-              (order) =>
-                order.type === meal &&
-                order.status === "ORDERED" &&
-                new Date(order.created_at) >= today
-            );
-
-            const isDisabled = isMealOrderedToday || isAfterMealTime(meal);
-
-            return (
-              <Grid item key={index}>
-                <Box m={2}>
-                  <Card
-                    elevation={mealType === meal ? 3 : 1}
-                    sx={{
-                      borderRadius: 2,
-                      opacity: isDisabled ? 0.5 : 1,
-                    }}
-                  >
-                    <CardActionArea
-                      onClick={() => setMealType(meal)}
-                      disabled={isDisabled}
-                    >
-                      <CardContent>
-                        <FormControlLabel
-                          control={
-                            <Checkbox checked={mealType === meal} name={meal} />
-                          }
-                          label={<Typography variant="h5">{meal}</Typography>}
-                        />
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Box>
-              </Grid>
-            );
-          })}
-        </Grid>
-      )}
-      {activeStep === 1 && (
-        <Grid container spacing={2}>
-          {meals.map((mealItem, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <Box m={2}>
-                <Card
-                  elevation={meal === mealItem.name ? 3 : 1}
-                  sx={{
-                    borderRadius: 2,
-                    opacity: mealItem.is_available ? 1 : 0.5,
-                  }}
+      {orderSuccess === false ? (
+        <>
+          <Stepper activeStep={activeStep} sx={{ m: "2em" }}>
+            <Step>
+              <StepLabel>
+                <Typography variant="h5">When?</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ maxWidth: "300px", wordWrap: "break-word" }}
                 >
-                  <CardMedia
-                    component="img"
-                    height="140"
-                    image="/path/to/image.jpg"
-                    alt={mealItem.name}
-                  />
-                  <CardActionArea
-                    onClick={() => {
-                      setMeal(mealItem.name);
-                      setSelectedMealData(mealItem);
-                    }}
-                    disabled={!mealItem.is_available}
-                  >
-                    <CardContent>
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={
-                              meal === mealItem.name && mealItem.is_available
-                            }
-                            name={mealItem.name}
-                          />
-                        }
-                        label={
-                          <Typography variant="h5">{mealItem.name}</Typography>
-                        }
-                      />
-                    </CardContent>
-                  </CardActionArea>
-                  <CardActions>
-                    <Button
-                      size="small"
-                      color="primary"
-                      onClick={() => {
-                        setOpen(true);
-                        setSelectedMealData(mealItem);
-                      }}
-                      disabled={!mealItem.is_available}
-                    >
-                      Learn More
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      )}
-      {activeStep === 2 && (
-        <Box>
-          <Box sx={{ m: "2em" }}>
-            <Typography variant="h5">You have selected:</Typography>
-            {meals
-              .filter((mealItem) => mealItem.name === meal)
-              .map((selectedMeal, index) => (
-                <Box key={index} sx={{ mt: 1 }}>
-                  <Card sx={{ borderRadius: 2 }}>
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      image={selectedMeal.image}
-                      alt={selectedMeal.name}
-                    />
-                    <CardContent>
-                      <Typography variant="h5">{selectedMeal.name}</Typography>
-                      <Typography variant="body2">
-                        {selectedMeal.description}
-                      </Typography>
-                      <Typography variant="body2">
-                        Type: {selectedMeal.type}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Box>
-              ))}
-          </Box>
-        </Box>
-      )}
+                  What meal are you having? (breakfast, lunch, dinner)
+                </Typography>
+              </StepLabel>
+            </Step>
+            <Step>
+              <StepLabel>
+                <Typography variant="h5">What?</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ maxWidth: "300px", wordWrap: "break-word" }}
+                >
+                  Choose the food you’d like.
+                </Typography>
+              </StepLabel>
+            </Step>
+            <Step>
+              <StepLabel>
+                <Typography variant="h5">Confirm</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ maxWidth: "300px", wordWrap: "break-word" }}
+                >
+                  See the progress of your order.
+                </Typography>
+              </StepLabel>
+            </Step>
+          </Stepper>
+          {activeStep === 0 && (
+            <Grid container direction="column" spacing={2}>
+              {mealsTypes.map((meal, index) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          m: "2em",
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: "#fff",
-        }}
-      >
-        <Button
-          disabled={activeStep === 0}
-          onClick={() => setActiveStep((prevActiveStep) => prevActiveStep - 1)}
-        >
-          Back
-        </Button>
-        <Button
-          variant="contained"
-          disabled={
-            activeStep === 0 ? !mealType : activeStep === 1 ? !meal : false
-          }
-          onClick={() => {
-            if (activeStep < 2) {
-              setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            } else {
-              confirmOrder();
-            }
-          }}
-        >
-          {activeStep === 2 ? "Confirm" : "Next"}
-        </Button>
-      </Box>
+                const isMealOrderedToday = userOrders.some(
+                  (order) =>
+                    order.type === meal &&
+                    order.status === "ORDERED" &&
+                    new Date(order.created_at) >= today
+                );
+
+                const isDisabled = isMealOrderedToday || isAfterMealTime(meal);
+
+                return (
+                  <Grid item key={index}>
+                    <Box m={2}>
+                      <Card
+                        elevation={mealType === meal ? 3 : 1}
+                        sx={{
+                          borderRadius: 2,
+                          opacity: isDisabled ? 0.5 : 1,
+                        }}
+                      >
+                        <CardActionArea
+                          onClick={() => setMealType(meal)}
+                          disabled={isDisabled}
+                        >
+                          <CardContent>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={mealType === meal}
+                                  name={meal}
+                                />
+                              }
+                              label={
+                                <Typography variant="h5">{meal}</Typography>
+                              }
+                            />
+                          </CardContent>
+                        </CardActionArea>
+                      </Card>
+                    </Box>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
+          {activeStep === 1 && (
+            <Grid container spacing={2}>
+              {meals.map((mealItem, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Box m={2}>
+                    <Card
+                      elevation={meal === mealItem.name ? 3 : 1}
+                      sx={{
+                        borderRadius: 2,
+                        opacity: mealItem.is_available ? 1 : 0.5,
+                      }}
+                    >
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image="/path/to/image.jpg"
+                        alt={mealItem.name}
+                      />
+                      <CardActionArea
+                        onClick={() => {
+                          setMeal(mealItem.name);
+                          setSelectedMealData(mealItem);
+                        }}
+                        disabled={!mealItem.is_available}
+                      >
+                        <CardContent>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  meal === mealItem.name &&
+                                  mealItem.is_available
+                                }
+                                name={mealItem.name}
+                              />
+                            }
+                            label={
+                              <Typography variant="h5">
+                                {mealItem.name}
+                              </Typography>
+                            }
+                          />
+                        </CardContent>
+                      </CardActionArea>
+                      <CardActions>
+                        <Button
+                          size="small"
+                          color="primary"
+                          onClick={() => {
+                            setOpen(true);
+                            setSelectedMealData(mealItem);
+                          }}
+                          disabled={!mealItem.is_available}
+                        >
+                          Learn More
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+          {activeStep === 2 && (
+            <Box>
+              <Box sx={{ m: "2em" }}>
+                <Typography variant="h5">You have selected:</Typography>
+                {meals
+                  .filter((mealItem) => mealItem.name === meal)
+                  .map((selectedMeal, index) => (
+                    <Box key={index} sx={{ mt: 1 }}>
+                      <Card sx={{ borderRadius: 2 }}>
+                        <CardMedia
+                          component="img"
+                          height="140"
+                          image={selectedMeal.image}
+                          alt={selectedMeal.name}
+                        />
+                        <CardContent>
+                          <Typography variant="h5">
+                            {selectedMeal.name}
+                          </Typography>
+                          <Typography variant="body2">
+                            {selectedMeal.description}
+                          </Typography>
+                          <Typography variant="body2">
+                            Type: {selectedMeal.type}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Box>
+                  ))}
+              </Box>
+            </Box>
+          )}
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              m: "2em",
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: "#fff",
+            }}
+          >
+            <Button
+              disabled={activeStep === 0}
+              onClick={() =>
+                setActiveStep((prevActiveStep) => prevActiveStep - 1)
+              }
+            >
+              Back
+            </Button>
+            <Button
+              variant="contained"
+              disabled={
+                activeStep === 0 ? !mealType : activeStep === 1 ? !meal : false
+              }
+              onClick={() => {
+                if (activeStep < 2) {
+                  setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                } else {
+                  confirmOrder();
+                }
+              }}
+            >
+              {activeStep === 2 ? "Confirm" : "Next"}
+            </Button>
+          </Box>
+        </>
+      ) : (
+        <div>
+          <h1>Order Successful!</h1>
+          <p>Your order has been placed successfully.</p>
+          <Button onClick={resetOrder}>Place Another Order</Button>
+        </div>
+      )}
 
       <Modal
         open={open}
