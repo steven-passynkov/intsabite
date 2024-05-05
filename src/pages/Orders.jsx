@@ -181,7 +181,7 @@ const OrdersPage = () => {
                           {user ? user.room_number : "Unknown Room Number"}
                         </TableCell>
                         <TableCell>
-                          {user.allergens
+                          {user && user.allergens
                             ? user.allergens
                             : "No allergens listed"}
                         </TableCell>

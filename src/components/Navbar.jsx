@@ -15,8 +15,6 @@ function NavBar() {
           .from("staff")
           .select("id")
           .eq("id", user.data.user.id);
-
-        console.log(staff);
         setIsStaff(staff.length > 0);
       }
     };
