@@ -99,9 +99,9 @@ const Order = () => {
       case "Breakfast":
         return currentHour >= 10;
       case "Lunch":
-        return currentHour >= 23;
+        return currentHour >= 12;
       case "Snack":
-        return currentHour >= 23;
+        return currentHour >= 16;
       case "Dinner":
         return currentHour >= 23;
       default:
