@@ -19,7 +19,7 @@ const Logout = () => {
   }, []);
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
       <h1>Logout</h1>
       <p>{message}</p>
     </div>
